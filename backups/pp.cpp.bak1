@@ -1,0 +1,78 @@
+#include <iostream>
+#include <stdio.h>
+#include <stdarg.h>
+#include <string>
+#include <pthread.h>
+
+#include "pp.h"
+
+#define PP_PUT_REQ                  1001
+#define PP_PUT_DATA                 1002
+#define PP_READY_TO_RECV_PUT_DATA   1003
+#define PP_PUT_RESP                 1004
+#define PP_RESERVE_REQ              1005
+#define PP_RESERVE_RESP             1006
+#define PP_GET_REQ                  1007
+#define PP_GET_RESP                 1008
+#define PP_FIND_REQ                 1009
+#define PP_FIND_RESP                1010
+
+#define BUFFER_SIZE                 10
+
+void *pp_server(void* args);
+
+int myrank, num_ranks;
+int num_types;
+int *types;
+int next_put_rank;
+int server_size;
+
+pthread_t pp_server_thread;
+
+MPI_Comm PP_COMM_WORLD;
+
+void *pp_server(void *args)
+{
+    int done = 0;
+    while(!done)
+    {
+        printf("HI I AM HERE!");
+        done = 1;
+    }
+}
+
+int PP_Init(int max_mem_by_server, int num_user_types, int user_types[])
+{
+    int rc, initialized, ts;
+
+    rc = MPI_Initialized(&initialized);
+
+    if(!initialized)
+    {
+        MPI_Init_thread(NULL, NULL, MPI_THREAD_MULTIPLE, &ts);
+    }
+    else
+    {
+        MPI_Query_thread(&ts);
+        if(ts != MPI_THREAD_MULTIPLE)i
+        {
+            printf("HERPDERP FAILED!");
+        }
+    }
+
+    server_size = max_mem_by_server;
+    num_types = num_user_types
+
+    for(int i = 0; i < num_user_types)
+        types[i] = user_types[i]; 
+
+    MPI_Comm_dup(MPI_COMM_WORLD, &PP_COMM_WORLD;
+    MPI_Comm_size(PP_COMM_WORLD, &num_ranks);
+    MPI_Comm_rank(PP_COMM_WORLD, &myrank);
+
+    pthread_create(&server_thread, NULL, pp_server, NULL);
+
+    return 1;
+}
+
+

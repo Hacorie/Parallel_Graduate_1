@@ -1,0 +1,248 @@
+[0] ------------------------------------------------------------------------------
+[0] |                     ARGUMENTS |           RETURN CODES |        WORK UNITS |
+[0] |       do_put_answer  =      0 |         PP_FAIL  =  -1 |      WORK  =    1 |
+[0] |       all_ranks_put  =      0 |      PP_SUCCESS  =   1 |    ANSWER  =    2 |
+[0] |      num_work_units  =    100 | PP_NO_MORE_WORK  = -99 |                   |
+[0] |      work_unit_size  =1000000 |   PP_EXHAUSTION  =   0 |                   |
+[0] |  time_for_fake_work  =     10 |                        |                   |
+[0] |           num_ranks  =     16 |                        |                   |
+[0] ------------------------------------------------------------------------------
+[0] ***
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u0 handle_key=0:1
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u1 handle_key=1:1
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u2 handle_key=2:1
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u3 handle_key=3:1
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u4 handle_key=4:1
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u5 handle_key=5:1
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u6 handle_key=6:1
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u7 handle_key=7:1
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u8 handle_key=8:1
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u9 handle_key=9:1
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u10 handle_key=10:1
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u11 handle_key=11:1
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u12 handle_key=12:1
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u13 handle_key=13:1
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u14 handle_key=14:1
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u15 handle_key=15:1
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u16 handle_key=0:2
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u17 handle_key=1:2
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u18 handle_key=2:2
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u19 handle_key=3:2
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u20 handle_key=4:2
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u21 handle_key=5:2
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u22 handle_key=6:2
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u23 handle_key=7:2
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u24 handle_key=8:2
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u25 handle_key=9:2
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u26 handle_key=10:2
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u27 handle_key=11:2
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u28 handle_key=12:2
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u29 handle_key=13:2
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u30 handle_key=14:2
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u31 handle_key=15:2
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u32 handle_key=0:3
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u33 handle_key=1:3
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u34 handle_key=2:3
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u35 handle_key=3:3
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u36 handle_key=4:3
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u37 handle_key=5:3
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u38 handle_key=6:3
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u39 handle_key=7:3
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u40 handle_key=8:3
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u41 handle_key=9:3
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u42 handle_key=10:3
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u43 handle_key=11:3
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u44 handle_key=12:3
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u45 handle_key=13:3
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u46 handle_key=14:3
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u47 handle_key=15:3
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u48 handle_key=0:4
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u49 handle_key=1:4
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u50 handle_key=2:4
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u51 handle_key=3:4
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u52 handle_key=4:4
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u53 handle_key=5:4
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u54 handle_key=6:4
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u55 handle_key=7:4
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u56 handle_key=8:4
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u57 handle_key=9:4
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u58 handle_key=10:4
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u59 handle_key=11:4
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u60 handle_key=12:4
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u61 handle_key=13:4
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u62 handle_key=14:4
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u63 handle_key=15:4
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u64 handle_key=0:5
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u65 handle_key=1:5
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u66 handle_key=2:5
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u67 handle_key=3:5
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u68 handle_key=4:5
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u69 handle_key=5:5
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u70 handle_key=6:5
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u71 handle_key=7:5
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u72 handle_key=8:5
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u73 handle_key=9:5
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u74 handle_key=10:5
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u75 handle_key=11:5
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u76 handle_key=12:5
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u77 handle_key=13:5
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u78 handle_key=14:5
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u79 handle_key=15:5
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u80 handle_key=0:6
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u81 handle_key=1:6
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u82 handle_key=2:6
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u83 handle_key=3:6
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u84 handle_key=4:6
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u85 handle_key=5:6
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u86 handle_key=6:6
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u87 handle_key=7:6
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u88 handle_key=8:6
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u89 handle_key=9:6
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u90 handle_key=10:6
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u91 handle_key=11:6
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u92 handle_key=12:6
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u93 handle_key=13:6
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u94 handle_key=14:6
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u95 handle_key=15:6
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u96 handle_key=0:7
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u97 handle_key=1:7
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u98 handle_key=2:7
+[0] rank= 0  PUT rc=1 DATA=workunit:r0:u99 handle_key=3:7
+[0] rank= 0 FIND: rc=1 h_key=0:1 type=1 size=1000000      GET: rc=1 h_key=0:1 data=workunit:r0:u0                                                         
+[1] rank= 1 FIND: rc=1 h_key=1:1 type=1 size=1000000      GET: rc=1 h_key=1:1 data=workunit:r0:u1                                                         
+[5] rank= 5 FIND: rc=1 h_key=5:1 type=1 size=1000000      GET: rc=1 h_key=5:1 data=workunit:r0:u5                                                         
+[13] rank=13 FIND: rc=1 h_key=13:1 type=1 size=1000000     GET: rc=1 h_key=13:1 data=workunit:r0:u13                                                       
+[8] rank= 8 FIND: rc=1 h_key=8:1 type=1 size=1000000      GET: rc=1 h_key=8:1 data=workunit:r0:u8                                                         
+[14] rank=14 FIND: rc=1 h_key=14:1 type=1 size=1000000     GET: rc=1 h_key=14:1 data=workunit:r0:u14                                                       
+[6] rank= 6 FIND: rc=1 h_key=6:1 type=1 size=1000000      GET: rc=1 h_key=6:1 data=workunit:r0:u6                                                         
+[7] rank= 7 FIND: rc=1 h_key=7:1 type=1 size=1000000      GET: rc=1 h_key=7:1 data=workunit:r0:u7                                                         
+[15] rank=15 FIND: rc=1 h_key=15:1 type=1 size=1000000     GET: rc=1 h_key=15:1 data=workunit:r0:u15                                                       
+[4] rank= 4 FIND: rc=1 h_key=4:1 type=1 size=1000000      GET: rc=1 h_key=4:1 data=workunit:r0:u4                                                         
+[10] rank=10 FIND: rc=1 h_key=10:1 type=1 size=1000000     GET: rc=1 h_key=10:1 data=workunit:r0:u10                                                       
+[2] rank= 2 FIND: rc=1 h_key=2:1 type=1 size=1000000      GET: rc=1 h_key=2:1 data=workunit:r0:u2                                                         
+[3] rank= 3 FIND: rc=1 h_key=3:1 type=1 size=1000000      GET: rc=1 h_key=3:1 data=workunit:r0:u3                                                         
+[11] rank=11 FIND: rc=1 h_key=11:1 type=1 size=1000000     GET: rc=1 h_key=11:1 data=workunit:r0:u11                                                       
+[12] rank=12 FIND: rc=1 h_key=12:1 type=1 size=1000000     GET: rc=1 h_key=12:1 data=workunit:r0:u12                                                       
+[9] rank= 9 FIND: rc=1 h_key=9:1 type=1 size=1000000      GET: rc=1 h_key=9:1 data=workunit:r0:u9                                                         
+[1] rank= 1 FIND: rc=1 h_key=1:2 type=1 size=1000000      GET: rc=1 h_key=1:2 data=workunit:r0:u17                                                        
+[5] rank= 5 FIND: rc=1 h_key=5:2 type=1 size=1000000      GET: rc=1 h_key=5:2 data=workunit:r0:u21                                                        
+[0] rank= 0 FIND: rc=1 h_key=0:2 type=1 size=1000000      GET: rc=1 h_key=0:2 data=workunit:r0:u16                                                        
+[8] rank= 8 FIND: rc=1 h_key=8:2 type=1 size=1000000      GET: rc=1 h_key=8:2 data=workunit:r0:u24                                                        
+[13] rank=13 FIND: rc=1 h_key=13:2 type=1 size=1000000     GET: rc=1 h_key=13:2 data=workunit:r0:u29                                                       
+[6] rank= 6 FIND: rc=1 h_key=6:2 type=1 size=1000000      GET: rc=1 h_key=6:2 data=workunit:r0:u22                                                        
+[14] rank=14 FIND: rc=1 h_key=14:2 type=1 size=1000000     GET: rc=1 h_key=14:2 data=workunit:r0:u30                                                       
+[15] rank=15 FIND: rc=1 h_key=15:2 type=1 size=1000000     GET: rc=1 h_key=15:2 data=workunit:r0:u31                                                       
+[2] rank= 2 FIND: rc=1 h_key=2:2 type=1 size=1000000      GET: rc=1 h_key=2:2 data=workunit:r0:u18                                                        
+[3] rank= 3 FIND: rc=1 h_key=3:2 type=1 size=1000000      GET: rc=1 h_key=3:2 data=workunit:r0:u19                                                        
+[12] rank=12 FIND: rc=1 h_key=12:2 type=1 size=1000000     GET: rc=1 h_key=12:2 data=workunit:r0:u28                                                       
+[11] rank=11 FIND: rc=1 h_key=11:2 type=1 size=1000000     GET: rc=1 h_key=11:2 data=workunit:r0:u27                                                       
+[10] rank=10 FIND: rc=1 h_key=10:2 type=1 size=1000000     GET: rc=1 h_key=10:2 data=workunit:r0:u26                                                       
+[7] rank= 7 FIND: rc=1 h_key=7:2 type=1 size=1000000      GET: rc=1 h_key=7:2 data=workunit:r0:u23                                                        
+[9] rank= 9 FIND: rc=1 h_key=9:2 type=1 size=1000000      GET: rc=1 h_key=9:2 data=workunit:r0:u25                                                        
+[4] rank= 4 FIND: rc=1 h_key=4:2 type=1 size=1000000      GET: rc=1 h_key=4:2 data=workunit:r0:u20                                                        
+[5] rank= 5 FIND: rc=1 h_key=5:3 type=1 size=1000000      GET: rc=1 h_key=5:3 data=workunit:r0:u37                                                        
+[1] rank= 1 FIND: rc=1 h_key=1:3 type=1 size=1000000      GET: rc=1 h_key=1:3 data=workunit:r0:u33                                                        
+[0] rank= 0 FIND: rc=1 h_key=0:3 type=1 size=1000000      GET: rc=1 h_key=0:3 data=workunit:r0:u32                                                        
+[8] rank= 8 FIND: rc=1 h_key=8:3 type=1 size=1000000      GET: rc=1 h_key=8:3 data=workunit:r0:u40                                                        
+[6] rank= 6 FIND: rc=1 h_key=6:3 type=1 size=1000000      GET: rc=1 h_key=6:3 data=workunit:r0:u38                                                        
+[13] rank=13 FIND: rc=1 h_key=13:3 type=1 size=1000000     GET: rc=1 h_key=13:3 data=workunit:r0:u45                                                       
+[15] rank=15 FIND: rc=1 h_key=15:3 type=1 size=1000000     GET: rc=1 h_key=15:3 data=workunit:r0:u47                                                       
+[14] rank=14 FIND: rc=1 h_key=14:3 type=1 size=1000000     GET: rc=1 h_key=14:3 data=workunit:r0:u46                                                       
+[2] rank= 2 FIND: rc=1 h_key=2:3 type=1 size=1000000      GET: rc=1 h_key=2:3 data=workunit:r0:u34                                                        
+[12] rank=12 FIND: rc=1 h_key=12:3 type=1 size=1000000     GET: rc=1 h_key=12:3 data=workunit:r0:u44                                                       
+[10] rank=10 FIND: rc=1 h_key=10:3 type=1 size=1000000     GET: rc=1 h_key=10:3 data=workunit:r0:u42                                                       
+[11] rank=11 FIND: rc=1 h_key=11:3 type=1 size=1000000     GET: rc=1 h_key=11:3 data=workunit:r0:u43                                                       
+[7] rank= 7 FIND: rc=1 h_key=7:3 type=1 size=1000000      GET: rc=1 h_key=7:3 data=workunit:r0:u39                                                        
+[9] rank= 9 FIND: rc=1 h_key=9:3 type=1 size=1000000      GET: rc=1 h_key=9:3 data=workunit:r0:u41                                                        
+[3] rank= 3 FIND: rc=1 h_key=3:3 type=1 size=1000000      GET: rc=1 h_key=3:3 data=workunit:r0:u35                                                        
+[4] rank= 4 FIND: rc=1 h_key=4:3 type=1 size=1000000      GET: rc=1 h_key=4:3 data=workunit:r0:u36                                                        
+[5] rank= 5 FIND: rc=1 h_key=5:4 type=1 size=1000000      GET: rc=1 h_key=5:4 data=workunit:r0:u53                                                        
+[1] rank= 1 FIND: rc=1 h_key=1:4 type=1 size=1000000      GET: rc=1 h_key=1:4 data=workunit:r0:u49                                                        
+[8] rank= 8 FIND: rc=1 h_key=8:4 type=1 size=1000000      GET: rc=1 h_key=8:4 data=workunit:r0:u56                                                        
+[0] rank= 0 FIND: rc=1 h_key=0:4 type=1 size=1000000      GET: rc=1 h_key=0:4 data=workunit:r0:u48                                                        
+[15] rank=15 FIND: rc=1 h_key=15:4 type=1 size=1000000     GET: rc=1 h_key=15:4 data=workunit:r0:u63                                                       
+[6] rank= 6 FIND: rc=1 h_key=6:4 type=1 size=1000000      GET: rc=1 h_key=6:4 data=workunit:r0:u54                                                        
+[13] rank=13 FIND: rc=1 h_key=13:4 type=1 size=1000000     GET: rc=1 h_key=13:4 data=workunit:r0:u61                                                       
+[14] rank=14 FIND: rc=1 h_key=14:4 type=1 size=1000000     GET: rc=1 h_key=14:4 data=workunit:r0:u62                                                       
+[2] rank= 2 FIND: rc=1 h_key=2:4 type=1 size=1000000      GET: rc=1 h_key=2:4 data=workunit:r0:u50                                                        
+[10] rank=10 FIND: rc=1 h_key=10:4 type=1 size=1000000     GET: rc=1 h_key=10:4 data=workunit:r0:u58                                                       
+[7] rank= 7 FIND: rc=1 h_key=7:4 type=1 size=1000000      GET: rc=1 h_key=7:4 data=workunit:r0:u55                                                        
+[11] rank=11 FIND: rc=1 h_key=11:4 type=1 size=1000000     GET: rc=1 h_key=11:4 data=workunit:r0:u59                                                       
+[9] rank= 9 FIND: rc=1 h_key=9:4 type=1 size=1000000      GET: rc=1 h_key=9:4 data=workunit:r0:u57                                                        
+[12] rank=12 FIND: rc=1 h_key=12:4 type=1 size=1000000     GET: rc=1 h_key=12:4 data=workunit:r0:u60                                                       
+[3] rank= 3 FIND: rc=1 h_key=3:4 type=1 size=1000000      GET: rc=1 h_key=3:4 data=workunit:r0:u51                                                        
+[4] rank= 4 FIND: rc=1 h_key=4:4 type=1 size=1000000      GET: rc=1 h_key=4:4 data=workunit:r0:u52                                                        
+[5] rank= 5 FIND: rc=1 h_key=5:5 type=1 size=1000000      GET: rc=1 h_key=5:5 data=workunit:r0:u69                                                        
+[8] rank= 8 FIND: rc=1 h_key=8:5 type=1 size=1000000      GET: rc=1 h_key=8:5 data=workunit:r0:u72                                                        
+[1] rank= 1 FIND: rc=1 h_key=1:5 type=1 size=1000000      GET: rc=1 h_key=1:5 data=workunit:r0:u65                                                        
+[15] rank=15 FIND: rc=1 h_key=15:5 type=1 size=1000000     GET: rc=1 h_key=15:5 data=workunit:r0:u79                                                       
+[13] rank=13 FIND: rc=1 h_key=13:5 type=1 size=1000000     GET: rc=1 h_key=13:5 data=workunit:r0:u77                                                       
+[0] rank= 0 FIND: rc=1 h_key=0:5 type=1 size=1000000      GET: rc=1 h_key=0:5 data=workunit:r0:u64                                                        
+[6] rank= 6 FIND: rc=1 h_key=6:5 type=1 size=1000000      GET: rc=1 h_key=6:5 data=workunit:r0:u70                                                        
+[14] rank=14 FIND: rc=1 h_key=14:5 type=1 size=1000000     GET: rc=1 h_key=14:5 data=workunit:r0:u78                                                       
+[2] rank= 2 FIND: rc=1 h_key=2:5 type=1 size=1000000      GET: rc=1 h_key=2:5 data=workunit:r0:u66                                                        
+[7] rank= 7 FIND: rc=1 h_key=7:5 type=1 size=1000000      GET: rc=1 h_key=7:5 data=workunit:r0:u71                                                        
+[11] rank=11 FIND: rc=1 h_key=11:5 type=1 size=1000000     GET: rc=1 h_key=11:5 data=workunit:r0:u75                                                       
+[9] rank= 9 FIND: rc=1 h_key=9:5 type=1 size=1000000      GET: rc=1 h_key=9:5 data=workunit:r0:u73                                                        
+[12] rank=12 FIND: rc=1 h_key=12:5 type=1 size=1000000     GET: rc=1 h_key=12:5 data=workunit:r0:u76                                                       
+[3] rank= 3 FIND: rc=1 h_key=3:5 type=1 size=1000000      GET: rc=1 h_key=3:5 data=workunit:r0:u67                                                        
+[10] rank=10 FIND: rc=1 h_key=10:5 type=1 size=1000000     GET: rc=1 h_key=10:5 data=workunit:r0:u74                                                       
+[4] rank= 4 FIND: rc=1 h_key=4:5 type=1 size=1000000      GET: rc=1 h_key=4:5 data=workunit:r0:u68                                                        
+[5] rank= 5 FIND: rc=1 h_key=5:6 type=1 size=1000000      GET: rc=1 h_key=5:6 data=workunit:r0:u85                                                        
+[8] rank= 8 FIND: rc=1 h_key=8:6 type=1 size=1000000      GET: rc=1 h_key=8:6 data=workunit:r0:u88                                                        
+[15] rank=15 FIND: rc=1 h_key=15:6 type=1 size=1000000     GET: rc=1 h_key=15:6 data=workunit:r0:u95                                                       
+[1] rank= 1 FIND: rc=1 h_key=1:6 type=1 size=1000000      GET: rc=1 h_key=1:6 data=workunit:r0:u81                                                        
+[13] rank=13 FIND: rc=1 h_key=13:6 type=1 size=1000000     GET: rc=1 h_key=13:6 data=workunit:r0:u93                                                       
+[0] rank= 0 FIND: rc=1 h_key=0:6 type=1 size=1000000      GET: rc=1 h_key=0:6 data=workunit:r0:u80                                                        
+[6] rank= 6 FIND: rc=1 h_key=6:6 type=1 size=1000000      GET: rc=1 h_key=6:6 data=workunit:r0:u86                                                        
+[14] rank=14 FIND: rc=1 h_key=14:6 type=1 size=1000000     GET: rc=1 h_key=14:6 data=workunit:r0:u94                                                       
+[2] rank= 2 FIND: rc=1 h_key=2:6 type=1 size=1000000      GET: rc=1 h_key=2:6 data=workunit:r0:u82                                                        
+[11] rank=11 FIND: rc=1 h_key=11:6 type=1 size=1000000     GET: rc=1 h_key=11:6 data=workunit:r0:u91                                                       
+[9] rank= 9 FIND: rc=1 h_key=9:6 type=1 size=1000000      GET: rc=1 h_key=9:6 data=workunit:r0:u89                                                        
+[7] rank= 7 FIND: rc=1 h_key=7:6 type=1 size=1000000      GET: rc=1 h_key=7:6 data=workunit:r0:u87                                                        
+[12] rank=12 FIND: rc=1 h_key=12:6 type=1 size=1000000     GET: rc=1 h_key=12:6 data=workunit:r0:u92                                                       
+[10] rank=10 FIND: rc=1 h_key=10:6 type=1 size=1000000     GET: rc=1 h_key=10:6 data=workunit:r0:u90                                                       
+[3] rank= 3 FIND: rc=1 h_key=3:6 type=1 size=1000000      GET: rc=1 h_key=3:6 data=workunit:r0:u83                                                        
+[4] rank= 4 FIND: rc=1 h_key=4:6 type=1 size=1000000      GET: rc=1 h_key=4:6 data=workunit:r0:u84                                                        
+[1] rank= 1 FIND: rc=1 h_key=1:7 type=1 size=1000000      GET: rc=1 h_key=1:7 data=workunit:r0:u97                                                        
+[5] rank= 5 FIND: rc=1 h_key=0:7 type=1 size=1000000      GET: rc=1 h_key=0:7 data=workunit:r0:u96                                                        
+[15] rank=15 FIND: rc=1 h_key=2:7 type=1 size=1000000      GET: rc=1 h_key=2:7 data=workunit:r0:u98                                                        
+[2] rank= 2 FIND: rc=1 h_key=3:7 type=1 size=1000000      GET: rc=1 h_key=3:7 data=workunit:r0:u99                                                        
+[4] rank= 4 Terminated by EXHAUSTION
+[5] rank= 5 Terminated by EXHAUSTION
+[6] rank= 6 Terminated by EXHAUSTION
+[12] rank=12 Terminated by EXHAUSTION
+[0] rank= 0 Terminated by EXHAUSTION
+[7] rank= 7 Terminated by EXHAUSTION
+[10] rank=10 Terminated by EXHAUSTION
+[13] rank=13 Terminated by EXHAUSTION
+[8] rank= 8 Terminated by EXHAUSTION
+[9] rank= 9 Terminated by EXHAUSTION
+[14] rank=14 Terminated by EXHAUSTION
+[2] rank= 2 Terminated by EXHAUSTION
+[11] rank=11 Terminated by EXHAUSTION
+[3] rank= 3 Terminated by EXHAUSTION
+[15] rank=15 Terminated by EXHAUSTION
+[1] rank= 1 Terminated by EXHAUSTION
+[0] ***[0] 
+[0] ----Stats:----[0] 
+[0]       RANK       NUM_PUTS     WORK_UNITS      TOTAL_PUT_TIME     TOTAL_RESV_TIME      TOTAL_GET_TIME       FINAL_RC       AVG_WORK_TIME     WORK_PER_SECOND
+[0]          0            100              6             0.90309             0.00052             0.00417              0             0.68663             1.45640
+[0]          1              0              7             0.00000             0.00032             0.00365              0             0.58854             1.69913
+[0]          2              0              7             0.00000             0.00277             0.01567              0             0.58854             1.69913
+[0]          3              0              6             0.00000             0.00413             0.00965              0             0.68663             1.45640
+[0]          4              0              6             0.00000             0.00161             0.01324              0             0.68663             1.45640
+[0]          5              0              7             0.00000             0.00138             0.01185              0             0.58854             1.69913
+[0]          6              0              6             0.00000             0.00028             0.00347              0             0.68663             1.45640
+[0]          7              0              6             0.00000             0.00097             0.00744              0             0.68663             1.45640
+[0]          8              0              6             0.00000             0.00040             0.00281              0             0.68663             1.45640
+[0]          9              0              6             0.00000             0.00182             0.00675              0             0.68663             1.45640
+[0]         10              0              6             0.00000             0.00144             0.01080              0             0.68663             1.45640
+[0]         11              0              6             0.00000             0.00056             0.00738              0             0.68663             1.45640
+[0]         12              0              6             0.00000             0.00521             0.00418              0             0.68663             1.45640
+[0]         13              0              6             0.00000             0.00031             0.00300              0             0.68663             1.45640
+[0]         14              0              6             0.00000             0.00046             0.00351              0             0.68663             1.45640
+[0]         15              0              7             0.00000             0.00445             0.01327              0             0.58854             1.69913
+[0]          -              -              -                   -                   -                   -
+[0]    TOTALS:            100            100             0.90309             0.02663             0.12087
+[0]      TIME: 4.11976

@@ -1,0 +1,94 @@
+                                
+
+                            Parallel Processing
+                                 CIS 6130
+                                Spring 2012
+                              Semester Project
+
+turnin_code:  pp6130_semester
+
+Implement a parallel library (libpp.a) that provides to the user, the
+interface outlined below, which supports the concept of a distributed
+shared data space.  Along with the library, please supply a pp.h file
+which user programs can include, and which provides all necessary 
+function prototypes, defines e.g. PP_SUCCESS, PP_HANDLE_SIZE, etc.
+
+Implement in C/C++ or D.
+
+Use MPI (mpich2) for the communication mechanism.
+
+Have each rank be at least 2 threads in which one thread 
+provides access to the distributed shared data space.
+
+int PP_Init()
+    int max_mem_by_server;  // in bytes
+    int num_user_types;
+        Any valid integer can be a user type.
+        Wildcards will be specified as described in the Find* 
+        functions below.
+    int user_types[PP_MAX_USER_TYPES];
+        This routine will invoke MPI_Init_thread if it has not
+        previously been invoked by the user program.  The user
+        should verify that MPI has not been initialized
+        by invoking MPI_Initialized if he decides to invoke
+        MPI_Init_thread himself.
+
+int PP_Finalize()
+
+int PP_Put()
+    void *buf;
+    int length;
+    int type;
+    int answer_rank;
+    int target_rank;  // -1 -> available for any rank
+    int handle[];
+        // same as FindAndReserve below, even though some
+        // info may be redundant/superfluous
+
+int PP_FindAndReserve
+    int num_types_in_req;        // <= 0 -> wildcard (any type)
+    int types_to_search_for[];   // logically OR'd together
+    int *size_of_work_found;
+    int *type_of_work_found;
+    int *answer_rank;
+    int handle[];  // contains all nec info to do a Get/Copy later
+        int rank where data is
+        int unique ID of the data item at that rank
+        int size_of_work
+        int type_of_work
+    The rc from this procedure is:
+        PP_SUCCESS 
+        PP_FAIL  // indicates an error condition
+        PP_EXHAUSTION
+        PP_NO_MORE_WORK
+
+int PP_Find
+    // see FindAndReserve but note does NOT reserve
+    // most likely used in conjunction with Copy instead of Get
+
+int PP_Get
+    void *buf;
+    int handle[];  // from prior FindAndReserve
+
+int PP_Copy
+    void *buf;
+        // may be NULL if really just wanting the num copies below
+        // this implies that there is NO data size; if the data
+        // actually has a non-zero size, then you can not use NULL
+    int  *num_times_copied_previously_by_anyone;
+        // permits use similar to FetchAndAdd
+        // first Copy returns 0, thus can be used like loop index
+    int handle[];  // from prior Find
+
+// int PP_FetchAndAdd
+    // NOT nec to implement
+    // we can fake it with Copy above
+
+int PP_Set_problem_done
+    Causes the return code on calls like FindAndReserve or Get to 
+    return PP_NO_MORE_WORK
+
+int PP_Abort
+    int code;
+        // usually just invokes MPI_Abort on MPI_COMM_WORLD with the code
+

@@ -1,0 +1,43 @@
+findcopy with 10 ranks
+    demonstrate that every rank got 3 values for each type,
+    that no value got skipped, and that every value was unique
+    for each type
+WORKS
+
+st1
+    1.  1  rank
+        100 work units
+        100 bytes / work unit
+        100 ms / work unit
+WORKS
+
+    2.  8  ranks
+        100 work units
+        100 bytes / work unit
+        100 ms / work unit
+WORKS
+
+    3.  8  ranks
+        100 work units
+        100 bytes / work unit
+        1 s / work unit
+WORKS
+
+    4.  16  ranks
+        100 work units
+        1000000 bytes / work unit
+        10 ms / work unit
+WORKS
+
+    5.  32  ranks
+        2000 work units
+        1000000 bytes / work unit
+        10 ms / work unit
+WORKS
+
+    6.  ** alter the code so that all ranks do the set of Puts
+           and all data is reserved for rank 0
+        8  ranks
+        1000 work units
+        500000 bytes / work unit
+        1 ms / work unit

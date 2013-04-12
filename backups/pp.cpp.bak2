@@ -1,0 +1,124 @@
+#include <iostream>
+#include <stdio.h>
+#include <stdarg.h>
+#include <string>
+#include <pthread.h>
+#include <mpi.h>
+
+#include "pp.h"
+
+#define PP_PUT_REQ                  1001
+#define PP_PUT_DATA                 1002
+#define PP_READY_TO_RECV_PUT_DATA   1003
+#define PP_PUT_RESP                 1004
+#define PP_RESERVE_REQ              1005
+#define PP_RESERVE_RESP             1006
+#define PP_GET_REQ                  1007
+#define PP_GET_RESP                 1008
+#define PP_FIND_REQ                 1009
+#define PP_FIND_RESP                1010
+#define PP_LOCAL_APP_DONE           1011
+
+#define BUFFER_SIZE                 10
+
+const int MAX_USER_TYPES = 100;
+
+static void *pp_server(void* args);
+
+static int myrank, num_ranks;
+static int num_types;
+static int types[MAX_USER_TYPES];
+static int next_put_rank;
+static int server_size;
+
+static pthread_t server_thread;
+
+static MPI_Comm PP_COMM_WORLD;
+
+void *pp_server(void *args)
+{
+    printf("this is a server thread from server: %d\n",myrank );
+
+    int rc;
+    int done = 0;
+    int pflag = 0;
+    int from_rank, from_tag;
+    
+    MPI_Status status;
+    MPI_Request request;
+
+    while(!done || !pflag)
+    {
+        rc = MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, PP_COMM_WORLD, &pflag, &status);
+        from_rank = status.MPI_SOURCE;
+        from_tag = status.MPI_TAG;
+        if(from_tag == PP_LOCAL_APP_DONE)
+        {
+            MPI_Recv(NULL, 0, MPI_BYTE, from_rank, PP_LOCAL_APP_DONE, PP_COMM_WORLD, &status);
+            done = true;
+        }
+    }
+}
+
+
+int PP_Init(int max_mem_by_server, int num_user_types, int user_types[])
+{
+    printf("Starting init\n");
+    int rc, initialized, ts;
+
+    rc = MPI_Initialized(&initialized);
+
+    if(!initialized)
+    {
+        //printf("inside init if\n");
+        MPI_Init_thread(NULL, NULL, MPI_THREAD_MULTIPLE, &ts);
+        //printf("finishing init if\n");
+    }
+    else
+    {
+        MPI_Query_thread(&ts);
+        if(ts != MPI_THREAD_MULTIPLE)
+        {
+            printf("HERPDERP FAILED!");
+        }
+    }
+
+    server_size = max_mem_by_server;
+    num_types = num_user_types;
+    //printf("init: Before reassigning pointer crap\n");
+    for(int i = 0; i < num_types; i++)
+    {
+       //printf("init:before assignment\n");
+       types[i] = user_types[i];
+       //printf("init: after assignment\n");
+    }
+    //printf("Before comm_dup\n");
+    MPI_Comm_dup(MPI_COMM_WORLD, &PP_COMM_WORLD);
+    MPI_Comm_size(PP_COMM_WORLD, &num_ranks);
+    MPI_Comm_rank(PP_COMM_WORLD, &myrank);
+    //printf("Before pthread_create\n");
+    pthread_create(&server_thread, NULL, pp_server, NULL);
+    printf("Finished init from server: %d\n", myrank);
+
+    return 1;
+}
+
+int PP_Finalize()
+{
+    printf("Staring Finalize\n");
+    int rc, flag;
+
+    printf("Starting Barrier from server %d\n", myrank);
+    MPI_Barrier(PP_COMM_WORLD);
+    rc = MPI_Finalized(&flag);
+    if(!flag)
+    {
+        //printf("inside finalize if from server %d\n", myrank);
+        rc= MPI_Send(NULL, 0, MPI_BYTE, myrank, PP_LOCAL_APP_DONE, PP_COMM_WORLD);
+        //printf("after send from server %d\n", myrank);
+        rc=pthread_join(server_thread, NULL);
+        MPI_Finalize();
+    }
+    return 1;
+}
+

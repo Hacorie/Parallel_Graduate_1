@@ -1,0 +1,816 @@
+#include <iostream>
+#include <stdio.h>
+#include <stdarg.h>
+#include <string>
+#include <pthread.h>
+#include <cstdlib>
+#include <mpi.h>
+#include <list>
+#include <map>
+
+#include "pp.h"
+
+using namespace std;
+
+#define BUFFER_SIZE                 10
+#define HANDLE_SIZE                 4
+#define MAX_USER_TYPES 				100
+
+struct map_data
+{
+	void *data;
+	int handle[BUFFER_SIZE];
+};
+
+static int PP_EXHAUST_FLAG = 0;
+
+static void *pp_server(void* args);
+
+static int myrank, num_ranks;
+static int num_types;
+static int types[MAX_USER_TYPES];
+static int server_size;
+static pthread_t server_thread;
+
+static MPI_Comm PP_COMM_WORLD;
+static int next_put_rank;
+static int PP_NO_MORE_WORK_FLAG;
+static int master_rank_exhaustion = 0;
+//static int exhaust_chk_is_out = 0;
+void *pp_server(void *args)
+{
+    //printf("this is a server thread from server: %d\n",myrank );
+
+    int rc;
+    int done = 0;
+    int pflag = 0, from_rank, from_tag;
+	int server_space = 0;
+	int unique_id = 1;
+    double exhaust_chk_start_time = MPI_Wtime();
+    double exhaust_chk_interval = 5.0;
+	int exhaust_chk_is_out = 0;
+	map_data map_entry;
+	map<int, map_data> data_library;
+	map<int, map_data>::iterator it;
+	
+	void *work_buffer;
+	
+	int ring_pass = 0;
+	
+	int length, type, answer_rank, target_rank, reserved;
+	int resp;
+	
+	int e_count;
+	
+	int get_id, get_rank;
+	
+    MPI_Status status;
+    MPI_Request request;
+	
+	int rhs_rank;
+	int lhs_rank;
+	
+	if(myrank == 0)
+	{
+		rhs_rank = (myrank + 1) % num_ranks; 
+		lhs_rank= num_ranks - 1;
+	}
+	else //(myrank == (num_ranks - 1))
+	{
+		rhs_rank = (myrank + 1) % num_ranks; 
+		lhs_rank= myrank - 1;
+	}
+
+    while(!done)
+    {
+		if(myrank == master_rank_exhaustion && (MPI_Wtime()-exhaust_chk_start_time > exhaust_chk_interval && !PP_EXHAUST_FLAG && num_ranks > 1))
+		{
+			exhaust_chk_start_time = MPI_Wtime();
+			int count = 0;
+			//exhaust_chk_is_out = 1;
+			MPI_Send(&count, 1, MPI_INT, rhs_rank, PP_EXHAUSTION_CHK, PP_COMM_WORLD);
+		}
+		
+        rc = MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, PP_COMM_WORLD, &pflag ,&status);
+        from_rank = status.MPI_SOURCE;
+        from_tag = status.MPI_TAG;
+        
+        int buffer[BUFFER_SIZE];
+        int handle[HANDLE_SIZE];
+		int fflag = 0;
+
+		if(pflag)
+		{
+			if (from_rank == myrank) {
+				ring_pass = 0;
+			}
+			
+			//printf("my_rank = %d ;;; from_rank = %d ;;; from_tag = %d\n", myrank, from_rank, from_tag);
+		
+			////////////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////////////////////////////////////////
+			if(from_tag == PP_EXHAUSTION_CHK)
+			{
+				MPI_Recv(&e_count, 1, MPI_INT, from_rank, PP_EXHAUSTION_CHK, PP_COMM_WORLD, &status);
+				//printf("checking for exhaustion ring_pass=%d\n", ring_pass);
+				if(ring_pass > 1)
+				{
+					//cout << "TEST\n";
+					if(myrank != master_rank_exhaustion)
+					{
+						MPI_Send(&e_count, 1, MPI_INT, rhs_rank, PP_EXHAUSTION_CHK, PP_COMM_WORLD);
+					}
+					else
+					{
+						if(e_count > 1)
+						{
+							MPI_Send(NULL, 0, MPI_BYTE, rhs_rank, PP_EXHAUST, PP_COMM_WORLD);
+						}
+						else
+						{
+							e_count++;
+							MPI_Send(&e_count, 1, MPI_INT, rhs_rank, PP_EXHAUSTION_CHK, PP_COMM_WORLD);
+						}
+					}
+				}
+			}
+			
+			////////////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////////////////////////////////////////
+			else if(from_tag == PP_EXHAUST)
+			{
+				PP_EXHAUST_FLAG = 1;
+				MPI_Recv(NULL, 0, MPI_BYTE, from_rank, PP_EXHAUST, PP_COMM_WORLD, &status);
+				
+				if(myrank != master_rank_exhaustion)
+				{
+					MPI_Send(NULL, 0, MPI_BYTE, rhs_rank, PP_EXHAUST, PP_COMM_WORLD);
+				}
+			}
+			
+			////////////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////////////////////////////////////////		
+			else if(from_tag == PP_LOCAL_APP_DONE)
+			{
+				//printf("%d waiting for finalize\n", myrank);
+				MPI_Recv(NULL, 0, MPI_BYTE, from_rank, PP_LOCAL_APP_DONE, PP_COMM_WORLD, &status);
+				//printf("recieved data from rank %d\n", from_rank);
+				done = true;
+			}
+
+			////////////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////////////////////////////////////////
+			else if(from_tag == PP_PUT_REQ)
+			{
+				//send_data[0] = length;
+				//send_data[1] = type;
+				//send_data[2] = answer_rank;
+				//send_data[4] = myrank;
+				
+				//send_data[3] = target_rank;
+				//send_data[5] = target_rank;
+				//if(myrank == master_rank_exhaustion)
+				//printf("I am in the put_req server func from rank %d to rank %d\n", from_rank,  myrank);
+				MPI_Recv(buffer, BUFFER_SIZE, MPI_INT, from_rank, PP_PUT_REQ, PP_COMM_WORLD, &status);
+				//cout << "My rank in put server : " << myrank << endl;
+				length = buffer[0];
+				type = buffer[1];
+				answer_rank = buffer[2];
+				target_rank = buffer[3];
+				from_rank = buffer[4];
+				reserved = buffer[5];
+				
+				//printf("target_Rank = %d\n", target_rank);
+				
+				if( (server_space + length) < server_size)
+				{
+					server_space += length;
+					resp = PP_ALLOW_PUT;
+					work_buffer = map_entry.data = malloc(length);
+					MPI_Irecv(work_buffer, length, MPI_BYTE, from_rank, PP_PUT_DATA, PP_COMM_WORLD, &request);
+					MPI_Rsend(&resp, 1, MPI_INT, from_rank, PP_PUT_RESP, PP_COMM_WORLD);
+					MPI_Wait(&request, &status);
+					
+					//printf("target_Rank = %d\n", target_rank);
+					map_entry.handle[0] = handle[0] = myrank;
+					map_entry.handle[1] = handle[1] = unique_id;
+					map_entry.handle[2] = handle[2] = length;
+					map_entry.handle[3] = handle[3] = type; 
+					map_entry.handle[4] = target_rank;
+					map_entry.handle[5] = answer_rank;
+					map_entry.handle[6] = reserved;
+					map_entry.handle[7] = 0;
+					
+					data_library[unique_id] = map_entry;
+					unique_id++;
+					//printf("unique id: %d\n", map_entry.handle[1]);
+					
+					MPI_Send(handle, HANDLE_SIZE, MPI_INT, from_rank, PP_HANDLE, PP_COMM_WORLD);
+				}
+				else
+				{
+					if(num_ranks > 1)
+					{
+						resp = PP_PUT_RING;
+						MPI_Send(&resp, 1, MPI_INT, from_rank, PP_PUT_RESP, PP_COMM_WORLD);
+					}
+					else
+					{
+						printf("I am sorry, but we cannot find a server to put the data!\n");
+						PP_Abort(-1);
+					}
+				}
+			}
+			
+			////////////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////////////////////////////////////////		
+			else if(from_tag == PP_GET_REQ)
+			{
+				MPI_Recv(handle, HANDLE_SIZE, MPI_INT, from_rank, PP_GET_REQ, PP_COMM_WORLD, &status);
+				if(PP_NO_MORE_WORK_FLAG)
+				{
+					resp = PP_NO_MORE_WORK;
+					MPI_Send(&resp, 1, MPI_INT, from_rank, PP_GET_RESP, PP_COMM_WORLD);
+					continue;
+				}
+				get_rank = handle[0];
+				get_id = handle[1];
+				length = handle[2];
+				type = handle[3];
+				
+				if(get_rank != myrank)
+				{
+					//printf("Inside the no privelages to get from rank: %d\n", myrank);
+					resp = PP_DENY_GET;
+					MPI_Send(&resp, 1, MPI_INT, from_rank, PP_GET_RESP, PP_COMM_WORLD);
+				}
+				else
+				{
+					//printf("Getting data form rank: %d ;;; origin rank=%d\n", myrank, from_rank);
+					it = data_library.find(get_id);
+					if(it != data_library.end() && !data_library.empty())
+					{
+						if(it->second.handle[4] == -1  || it->second.handle[6] == from_rank)
+						{
+							//printf("Allowing Get to happen at rank %d\n", myrank);
+							resp = PP_ALLOW_GET;
+							//printf("Sending a response from get on rank %d to rank %d\n", myrank, from_rank);
+							MPI_Send(&resp, 1, MPI_INT, from_rank, PP_GET_RESP, PP_COMM_WORLD);
+							//printf("Sending data from get on rank %d to rank %d\n", myrank, from_rank);
+							MPI_Send(it->second.data, length, MPI_BYTE, from_rank, PP_GET_DATA, PP_COMM_WORLD);
+							
+							data_library.erase(it);
+						}
+						else
+						{
+							resp = PP_DENY_GET;
+							MPI_Send(&resp, 1, MPI_INT, from_rank, PP_GET_RESP, PP_COMM_WORLD);
+						}							
+					}
+					else
+					{
+						//printf("Denying Get on rank%d\n", myrank);
+						resp = PP_DENY_GET;
+						MPI_Send(&resp, 1, MPI_INT, from_rank, PP_GET_RESP, PP_COMM_WORLD);	
+					}
+				}
+			}
+			
+			////////////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////////////////////////////////////////
+			else if(from_tag == PP_FIND_AND_RESERVE_REQ)
+			{
+				MPI_Recv(buffer, BUFFER_SIZE, MPI_INT, from_rank, PP_FIND_AND_RESERVE_REQ, PP_COMM_WORLD, &status);
+				
+				int find_num_types = buffer[0];
+				int start_find_rank = buffer[1];
+				
+				//printf("Num types in req: %d ==> Original Rank: %d\n", find_num_types, start_find_rank);
+				
+				int *find_types;
+				if(find_num_types > 0)
+				{
+					find_types = (int*)calloc(find_num_types, sizeof(int));
+				}
+				else
+				{
+					find_types = (int*)calloc(1, sizeof(int));
+					find_num_types = 1;
+				}
+				MPI_Recv(find_types, find_num_types, MPI_INT, from_rank, PP_TYPES, PP_COMM_WORLD, &status);
+				
+				if(PP_NO_MORE_WORK_FLAG)
+				{
+					resp = PP_NO_MORE_WORK;
+					MPI_Send(&resp, 1, MPI_INT, buffer[1], PP_FIND_AND_RESERVE_RESP, PP_COMM_WORLD);
+					continue;
+				}
+				
+				if(PP_EXHAUST_FLAG)
+				{
+					resp = PP_EXHAUSTION;
+					MPI_Send(&resp, 1, MPI_INT, buffer[1], PP_FIND_AND_RESERVE_RESP, PP_COMM_WORLD);
+					continue;
+				}
+				
+				if(!data_library.empty())
+				{
+					for(it=data_library.begin(); it != data_library.end() && fflag != 1; it++)
+					{
+						for(int i = 0; i < find_num_types && fflag != 1; i++)
+						{
+							if(it->second.handle[3] == (find_types[i] || find_types[i] == 0) && it->second.handle[6] == -1)
+							{
+								handle[0] = it->second.handle[0];
+								handle[1] = it->second.handle[1];
+								handle[2] = it->second.handle[2];
+								handle[3] = it->second.handle[3];
+								it->second.handle[6] = buffer[1];
+								
+								resp = PP_FOUND;
+								exhaust_chk_is_out = 0;
+								MPI_Send(&resp, 1, MPI_INT, buffer[1], PP_FIND_AND_RESERVE_RESP, PP_COMM_WORLD);
+								MPI_Send(handle, HANDLE_SIZE, MPI_INT, buffer[1], PP_FOUND, PP_COMM_WORLD);
+								fflag = 1;
+							}
+						}
+					}
+				}
+				if(fflag != 1)
+				{
+					//printf("Passing along to next rank\n");
+					if(num_ranks > 1 )
+					{
+						if(myrank == start_find_rank)
+						{
+							ring_pass++;
+						}
+						MPI_Send(buffer, BUFFER_SIZE, MPI_INT, rhs_rank, PP_FIND_AND_RESERVE_REQ, PP_COMM_WORLD);
+						MPI_Send(find_types, buffer[0], MPI_INT, rhs_rank, PP_TYPES, PP_COMM_WORLD);
+					}
+					else
+					{
+						resp = PP_EXHAUSTION;
+						MPI_Send(&resp, 1 , MPI_INT, buffer[1], PP_FIND_AND_RESERVE_RESP, PP_COMM_WORLD);
+					}
+				}
+			}
+			
+			////////////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////////////////////////////////////////		
+			else if(from_tag == PP_FIND_REQ)
+			{
+				MPI_Recv(buffer, BUFFER_SIZE, MPI_INT, from_rank, PP_FIND_REQ, PP_COMM_WORLD, &status);
+				//if(myrank == 0 && from_rank == 1 && buffer[1] == 1)
+				//	printf("Recieved data from rank1 ;;; find_num_types=%d ;;; start_find_rank=%d\n", buffer[0], buffer[1]);
+				int find_num_types = buffer[0];
+				int start_find_rank = buffer[1];
+				
+				int *find_types;
+				if(find_num_types > 0)
+				{
+					find_types = (int*)calloc(find_num_types, sizeof(int));
+				}
+				else
+				{
+					find_types = (int*)calloc(1, sizeof(int));
+					find_num_types = 1;
+				}
+				
+				MPI_Recv(find_types, find_num_types, MPI_INT, from_rank, PP_TYPES, PP_COMM_WORLD, &status);
+				//if(myrank == 0 && from_rank == 1 && buffer[1] == 1)
+				//	printf("Recieved data from rank1 ;;; find_num_types=%d ;;; start_find_rank=%d\n", buffer[0], buffer[1]);
+				//for(int i = 0; i < find_num_types; i++)
+				//	printf("Types to search for: %d\n", find_types[i]);
+				
+				if(PP_NO_MORE_WORK_FLAG)
+				{
+					resp = PP_NO_MORE_WORK;
+					MPI_Send(&resp, 1, MPI_INT, start_find_rank, PP_FIND_RESP, PP_COMM_WORLD);
+					continue;
+				}
+				
+				if(PP_EXHAUST_FLAG)
+				{
+					resp = PP_EXHAUSTION;
+					MPI_Send(&resp, 1, MPI_INT, start_find_rank, PP_FIND_RESP, PP_COMM_WORLD);
+					continue;
+				}
+				
+				fflag = 0;
+				if(!data_library.empty())
+				{
+					//if(myrank == 0 && from_rank == 1 && buffer[1] == 1)
+					//	printf("Searching for rank 1's request\n");
+					//printf("Should not be here if not rank 0\n");
+					for(it=data_library.begin(); it != data_library.end() && fflag != 1; it++)
+					{
+						for(int i = 0; i < find_num_types && fflag != 1; i++)
+						{
+							if(it->second.handle[3] == find_types[i] || find_types[i] == 0)
+							{
+								if(myrank == 0 && from_rank == 1 && buffer[1] == 1)
+									printf("Found rank 1's request!\n");
+								handle[0] = it->second.handle[0];
+								handle[1] = it->second.handle[1];
+								handle[2] = it->second.handle[2];
+								handle[3] = it->second.handle[3];
+								
+								//printf("%d %d %d %d", handle[0], handle[1], handle[2], handle[3]);
+								
+								resp = PP_FOUND;
+								exhaust_chk_is_out = 0;
+								MPI_Send(&resp, 1, MPI_INT, start_find_rank, PP_FIND_RESP, PP_COMM_WORLD);
+								MPI_Send(handle, HANDLE_SIZE, MPI_INT, start_find_rank, PP_FOUND, PP_COMM_WORLD);
+								fflag = 1;
+							}
+						}
+					}
+				}
+				if(fflag != 1)
+				{
+					//printf("Rank 1 should be here\n");
+					if(num_ranks > 1 )
+					{
+						if(myrank == start_find_rank)
+						{
+							ring_pass++;
+						}
+						MPI_Send(buffer, BUFFER_SIZE, MPI_INT, rhs_rank, PP_FIND_REQ, PP_COMM_WORLD);
+						MPI_Send(find_types, buffer[0], MPI_INT, rhs_rank, PP_TYPES, PP_COMM_WORLD);
+					}
+					else
+					{
+						resp = PP_EXHAUSTION;
+						MPI_Send(&resp, 1 , MPI_INT, find_num_types, PP_FIND_RESP, PP_COMM_WORLD);
+					}
+				}
+			}
+			////////////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////////////////////////////////////////		
+			else if(from_tag == PP_COPY_REQ)
+			{
+				MPI_Recv(handle, HANDLE_SIZE, MPI_INT, from_rank, PP_COPY_REQ, PP_COMM_WORLD, &status);
+				
+				if(PP_NO_MORE_WORK_FLAG)
+				{
+					resp = PP_NO_MORE_WORK;
+					MPI_Send(&resp, 1, MPI_INT, from_rank, PP_COPY_RESP, PP_COMM_WORLD);
+					continue;
+				}
+				
+				int data_rank = handle[0];
+				int data_id = handle[1];
+				int data_size = handle[2];
+				int data_type = handle[3];
+				int copy_count;
+				
+				if(data_library.count(data_id) == 0 || data_library.find(data_id) == data_library.end())
+				{
+					resp = PP_DENY_COPY;
+					MPI_Send(&resp, 1, MPI_INT, from_rank, PP_COPY_RESP, PP_COMM_WORLD);
+				}
+				else
+				{
+					it = data_library.find(data_id);
+					copy_count = it->second.handle[7]++;
+					
+					
+					resp = PP_ALLOW_COPY;
+					MPI_Send(&resp, 1, MPI_INT, from_rank, PP_COPY_RESP, PP_COMM_WORLD);
+							
+					MPI_Send(it->second.data, it->second.handle[2], MPI_BYTE, from_rank, PP_COPY, PP_COMM_WORLD);
+					MPI_Send(&copy_count, 1, MPI_INT, from_rank, PP_COPY_COUNT, PP_COMM_WORLD);				
+				}
+			}
+			
+			else if(from_tag == PP_NO_MORE)
+			{
+				MPI_Recv(NULL, 0, MPI_BYTE, from_rank, PP_NO_MORE, PP_COMM_WORLD, &status);
+				PP_NO_MORE_WORK_FLAG = 1;
+			}
+		}
+	}
+	return NULL;
+}
+
+
+int PP_Init(int max_mem_by_server, int num_user_types, int user_types[])
+{
+    //printf("Starting init\n");
+    int rc, initialized, ts;
+
+    rc = MPI_Initialized(&initialized);
+
+    if(!initialized)
+    {
+        //printf("inside init if\n");
+        MPI_Init_thread(NULL, NULL, MPI_THREAD_MULTIPLE, &ts);
+        //printf("finishing init if\n");
+    }
+    else
+    {
+        MPI_Query_thread(&ts);
+        if(ts != MPI_THREAD_MULTIPLE)
+        {
+            //printf("HERPDERP FAILED!");
+        }
+    }
+
+    server_size = max_mem_by_server;
+    num_types = num_user_types;
+    //printf("init: Before reassigning pointer crap\n");
+    for(int i = 0; i < num_types; i++)
+    {
+       //printf("init:before assignment\n");
+       types[i] = user_types[i];
+       //printf("init: after assignment\n");
+    }
+    //printf("Before comm_dup\n");
+    MPI_Comm_dup(MPI_COMM_WORLD, &PP_COMM_WORLD);
+    MPI_Comm_size(PP_COMM_WORLD, &num_ranks);
+    MPI_Comm_rank(PP_COMM_WORLD, &myrank);
+	next_put_rank = myrank;
+	PP_NO_MORE_WORK_FLAG = 0;
+    //printf("Before pthread_create\n");
+    pthread_create(&server_thread, NULL, pp_server, NULL);
+	//pthread_detach(server_thread);
+    //printf("Finished init from server: %d\n", myrank);
+
+    return PP_SUCCESS;
+}
+
+int PP_Finalize()
+{
+    //printf("Staring Finalize rank %d\n", myrank);
+    int rc, flag;
+
+    MPI_Barrier(PP_COMM_WORLD);
+    //printf("Finished Barrier from server %d\n", myrank);
+	rc = MPI_Finalized(&flag);
+	//printf("rc from server %d is %d\n", myrank, rc);
+    if(!flag)
+    {
+        //printf("inside finalize if from server %d\n", myrank);
+        rc= MPI_Send(NULL, 0, MPI_BYTE, myrank, PP_LOCAL_APP_DONE, PP_COMM_WORLD);
+		//printf("after send from server %d\n", myrank);
+        rc=pthread_join(server_thread, NULL);
+        MPI_Finalize();
+        //printf("After MPI_Finalize()\n");
+    }
+	//printf("Before return at rank %d\n", myrank);
+    return PP_SUCCESS;
+}
+
+int PP_Put(void *buf, int length, int type, int answer_rank, int target_rank, int handle[])
+{
+    //printf("Starting PP_Put on server %d\n", myrank);
+   //handle[0] = rank where data is
+   //handle[1] = unique ID on that rank
+   //handle[2] = size of work
+   //handle[3] = type of work
+
+    int rc, resp, send_data[BUFFER_SIZE], target;
+    MPI_Status status;
+    MPI_Request request;
+	
+	bool putFlag = false;
+	int put_counter = 1;
+
+    send_data[0] = length;
+    send_data[1] = type;
+    send_data[2] = answer_rank;
+    send_data[4] = myrank;
+
+    if(target_rank >= 0)
+	{
+		//printf("I am going to put the data on server %d\n", target_rank);
+        send_data[3] = target_rank;
+		send_data[5] = target_rank;
+		target = target_rank;
+    }
+	else
+    {
+		//printf("If none specified, i will move onto nextputrank: %d\n", next_put_rank);
+        target = next_put_rank;
+        send_data[3] = target;
+		send_data[5] = -1;
+		next_put_rank = (next_put_rank + 1) % num_ranks;
+    }
+    	
+	while(!putFlag)
+	{
+		MPI_Irecv(&resp, 1, MPI_INT, MPI_ANY_SOURCE, PP_PUT_RESP, PP_COMM_WORLD, &request);
+		MPI_Send(send_data, BUFFER_SIZE, MPI_INT, target, PP_PUT_REQ, PP_COMM_WORLD);
+		MPI_Wait(&request, &status);
+	
+		target = status.MPI_SOURCE;
+		if(resp == PP_ALLOW_PUT)
+		{
+			MPI_Rsend(buf, length, MPI_BYTE, target, PP_PUT_DATA, PP_COMM_WORLD);
+			MPI_Recv(handle, HANDLE_SIZE, MPI_INT, target, PP_HANDLE, PP_COMM_WORLD, &status);
+			putFlag=true;
+		}
+		else if(resp == PP_PUT_RING && put_counter != num_ranks*2)
+		{
+			//printf("passing the item to next place in ring\n");
+			target = next_put_rank;
+			next_put_rank = (next_put_rank + 1) % num_ranks;
+			++put_counter;
+			//cout <<  "Put couner: " << put_counter << endl;
+		}
+		else
+		{
+			//printf("I made it into put fail state\n");
+			return PP_FAIL;
+		}
+	}
+	return PP_SUCCESS;
+}
+int PP_FindAndReserve(int num_types_in_req, int types_to_search_for[], int *size_of_work_found,
+                        int *type_of_work_found, int handle[])
+{
+	int rc, resp;
+	
+	MPI_Status status;
+	MPI_Request request;
+	
+	int send_data[BUFFER_SIZE];
+	
+	send_data[0] = num_types_in_req;
+	send_data[1] = myrank;
+	
+	MPI_Irecv(&resp, 1, MPI_INT, MPI_ANY_SOURCE, PP_FIND_AND_RESERVE_RESP, PP_COMM_WORLD, &request);
+	//printf("Starting find and Reserve send data on rank: %d\n", myrank);
+	MPI_Send(send_data, BUFFER_SIZE, MPI_INT, myrank, PP_FIND_AND_RESERVE_REQ, PP_COMM_WORLD);
+	//printf("num_types_in_req: %d\n", num_types_in_req);
+	if(num_types_in_req != 0)
+	{
+		//printf("Starting find and Reserve send types if > 0 on rank: %d\n", myrank);
+		MPI_Send(types_to_search_for, num_types_in_req, MPI_INT, myrank, PP_TYPES, PP_COMM_WORLD);
+	}
+	else
+	{
+		int types2[] = {0};
+		//printf("Starting find and Reserve send on rank if 0: %d\n", myrank);
+		MPI_Send(types2, 1, MPI_INT, myrank, PP_TYPES, PP_COMM_WORLD);
+	}
+	MPI_Wait(&request, &status);
+	//printf("After find and Reserve wait on rank: %d\n", myrank);
+	
+	if(resp == PP_FOUND)
+	{
+		//printf("Starting find and Reserve recv on rank: %d\n", myrank);
+		MPI_Recv(handle, HANDLE_SIZE, MPI_INT, status.MPI_SOURCE, PP_FOUND, PP_COMM_WORLD, &status);
+		*size_of_work_found = handle[2];
+		*type_of_work_found = handle[3];
+		//printf("Found the work!\n");
+	}
+	else if(resp == PP_NO_MORE_WORK)
+	{
+		return PP_NO_MORE_WORK;
+	}
+	else
+	{
+		return PP_EXHAUSTION;
+	}
+	
+	return PP_SUCCESS;
+	
+}
+
+int PP_Find(int num_types_in_req, int types_to_search_for[], int *size_of_work_found, int *type, int handle[])
+{
+	//printf("Starting find\n");
+	int rc, resp;
+	
+	MPI_Status status;
+	MPI_Request request;
+	
+	int send_data[BUFFER_SIZE];
+	send_data[0] = num_types_in_req;
+	send_data[1] = myrank;
+	
+	//printf("Num types in req: %d\n", num_types_in_req);
+	//for(int i = 0; i < num_types_in_req; i++)
+	//	printf("%d ", types_to_search_for[i]);
+	
+	MPI_Irecv(&resp, 1, MPI_INT, MPI_ANY_SOURCE, PP_FIND_RESP, PP_COMM_WORLD, &request);
+	//printf("Starting find send data on rank: %d\n", myrank);
+	MPI_Send(send_data, BUFFER_SIZE, MPI_INT, myrank, PP_FIND_REQ, PP_COMM_WORLD);
+	if(num_types_in_req != 0)
+	{
+		//printf("Starting find send types if > 0 on rank: %d\n", myrank);
+		MPI_Send(types_to_search_for, num_types_in_req, MPI_INT, myrank, PP_TYPES, PP_COMM_WORLD);
+	}
+	else
+	{
+		int types2[] = {0};
+		//printf("Starting find send on rank if 0: %d\n", myrank);
+		MPI_Send(types2, 1, MPI_INT, myrank, PP_TYPES, PP_COMM_WORLD);
+	}
+	MPI_Wait(&request, &status);
+	//printf("After find wait on rank: %d\n", myrank); 
+	
+	if(resp == PP_FOUND)
+	{
+		//printf("Starting find recv on rank: %d\n", myrank);
+		MPI_Recv(handle, HANDLE_SIZE, MPI_INT, status.MPI_SOURCE, PP_FOUND, PP_COMM_WORLD, &status);
+		//printf("Ending find recv on rank: %d\n", myrank);
+		*size_of_work_found = handle[2];
+		*type = handle[3];
+	}
+	else if(resp == PP_NO_MORE_WORK)
+	{
+		return PP_NO_MORE_WORK;
+	}
+	else
+	{
+		return PP_EXHAUSTION;
+	}
+	//if(myrank == 1)
+	//	printf("SUCCESS!\n");
+	return PP_SUCCESS;
+}
+
+int PP_Get(void * buf, int handle[])
+{
+	int get_rank, size, resp;
+	
+	MPI_Request request;
+	MPI_Status status;
+	
+	get_rank = handle[0];
+	size = handle[2];
+	
+	//printf("Before Send in Get\n");
+	MPI_Irecv(&resp, 1, MPI_INT, get_rank, PP_GET_RESP, PP_COMM_WORLD, &request);
+	MPI_Send(handle, HANDLE_SIZE, MPI_INT, get_rank, PP_GET_REQ, PP_COMM_WORLD);
+	MPI_Wait(&request, &status);
+	
+	//printf("Recieved response from rank %d and it says %d\n", get_rank, resp);
+	if(resp == PP_ALLOW_GET)
+	{
+		//printf("Before Recieve in PP_Get on rank, %d\n", myrank);
+		MPI_Recv(buf, size, MPI_BYTE, status.MPI_SOURCE, PP_GET_DATA, PP_COMM_WORLD, &status);
+		//printf("After Recieve in PP_Get on rank, %d\n", myrank);
+	}
+	else if(resp == PP_NO_MORE_WORK)
+	{
+		return PP_NO_MORE_WORK;
+	}
+	else
+	{
+		return PP_FAIL;
+	}
+	//printf("%d\n", PP_SUCCESS);
+	return PP_SUCCESS;
+}
+
+int PP_Copy(void *buf, int *num_times_copied_previously_by_anyone, int handle[])
+{
+	int rc, resp;
+	
+	MPI_Request request;
+	MPI_Status status;
+	
+	int data_rank = handle[0];
+	int size = handle[2];
+
+	//printf("Before Copy Send at rank: %d\n", myrank);
+	MPI_Irecv(&resp, 1, MPI_INT, data_rank, PP_COPY_RESP, PP_COMM_WORLD, &request);
+	MPI_Send(handle, HANDLE_SIZE, MPI_INT, data_rank, PP_COPY_REQ, PP_COMM_WORLD);
+	MPI_Wait(&request, &status);
+	//printf("After Copy at rank %d\n", myrank);
+	
+	if(resp == PP_ALLOW_COPY)
+	{
+		MPI_Recv(buf, size, MPI_BYTE, data_rank, PP_COPY, PP_COMM_WORLD, &status);
+		MPI_Recv(num_times_copied_previously_by_anyone, 1, MPI_INT, data_rank, PP_COPY_COUNT, PP_COMM_WORLD, &status);
+	}
+	else if(resp == PP_NO_MORE_WORK)
+	{
+		return PP_NO_MORE_WORK;
+	}
+	else
+		return PP_FAIL;
+	
+	return PP_SUCCESS;
+}
+
+int PP_Set_problem_done()
+{
+    int rc;
+
+    for(int i=0; i < num_ranks; i++)
+    {
+        MPI_Send(NULL, 0, MPI_BYTE, i, PP_NO_MORE, PP_COMM_WORLD);
+    }
+    return PP_SUCCESS;
+}
+
+int PP_Abort(int code)
+{
+    MPI_Abort(PP_COMM_WORLD, code);
+    return 1;
+}
